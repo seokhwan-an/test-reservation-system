@@ -1,0 +1,14 @@
+version: '3.8'
+
+services:
+  db:
+    image: postgres
+    container_name: test-schedule-reservation-db-container
+    environment:
+      POSTGRES_DB: grepp
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: password
+    ports:
+      - "15432:5432"
+    volumes:
+      - ./db:/var/lib/postgresql/data
