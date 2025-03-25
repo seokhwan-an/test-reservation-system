@@ -1,3 +1,4 @@
+from django.contrib.auth import authenticate
 from django.contrib.auth.models import User
 from rest_framework import serializers
 
@@ -18,3 +19,15 @@ class SignupSerializer(serializers.ModelSerializer):
         user.save()
         return user
 
+
+class LoginSerializer(serializers.Serializer):
+    username = serializers.CharField()
+    password = serializers.CharField()
+
+    def validate(self, data):
+        user = authenticate(**data)
+        if not user:
+            raise serializers.ValidationError("존재하지 않는 사용자 입니다.")
+
+        data['user'] = user
+        return data
