@@ -7,6 +7,28 @@ from core.models.reservation import Reservation
 from rest_framework.exceptions import ValidationError
 
 
+class ReservationCreateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Reservation
+        fields = (
+            'test_reservation_date',
+            'test_start_time',
+            'test_end_time',
+            'headcount'
+        )
+
+    def validate(self, data):
+        test_date = data.get('test_reservation_date')
+        test_start = data.get('test_start_time')
+
+        if test_date and test_start:
+            target_datetime = make_aware(datetime.combine(test_date, test_start))
+            if target_datetime < now() + timedelta(days=3):
+                raise ValidationError("예약은 최소 3일 이후로만 가능합니다.")
+
+        return data
+
+
 class SimpleUserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
@@ -31,6 +53,7 @@ class ReservationSerializer(serializers.ModelSerializer):
             'created_at',
             'updated_at',
         ]
+
 
 class ReservationUpdateSerializer(serializers.ModelSerializer):
     STANDARD_MIN_DATE = 3
