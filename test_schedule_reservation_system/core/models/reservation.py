@@ -1,3 +1,4 @@
+from django.conf import settings
 from django.db import models
 
 
@@ -7,7 +8,12 @@ class Status(models.TextChoices):
 
 
 class Reservation(models.Model):
-    member_id = models.BigIntegerField(null=False)
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name='reservations',
+        null=False
+    )
     test_reservation_date = models.DateField(null=False)
     test_start_time = models.TimeField(null=False)
     test_end_time = models.TimeField(null=False)
