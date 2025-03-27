@@ -1,11 +1,12 @@
 from core.models.reservation import Reservation, Status
 from core.models.reservations import Reservations
 from rest_framework.exceptions import NotFound, ValidationError
+from rest_framework.utils.serializer_helpers import ReturnDict
 
-from .serializers import ReservationSerializer
+from .serializers import ReservationSerializer, ReservationUpdateSerializer
 
 
-def is_exist(reservation_id: int) -> Reservation:
+def get_reservation_by_id(reservation_id: int) -> Reservation:
     try:
         return Reservation.objects.get(pk=reservation_id)
     except Reservation.DoesNotExist:
@@ -17,8 +18,30 @@ def get_all_reservations() -> ReservationSerializer:
     return ReservationSerializer(reservations, many=True)
 
 
+def update_reservation(reservation_id: int, data: ReturnDict):
+    reservation = get_reservation_by_id(reservation_id)
+
+    serializer = ReservationUpdateSerializer(data=data)
+    serializer.is_valid(raise_exception=True)
+    new_headcount = serializer.validated_data['headcount']
+
+    reservations_in_time = Reservations(Reservation.objects.filter(
+        test_reservation_date=reservation.test_reservation_date,
+        test_start_time__lt=reservation.test_end_time,
+        test_end_time__gt=reservation.test_start_time,
+        status=Status.CONFIRM
+    ).exclude(pk=reservation.pk))
+
+    reservations_in_time.validate_exceed_limit(new_headcount)
+
+    for attr, value in serializer.validated_data.items():
+        setattr(reservation, attr, value)
+
+    reservation.save()
+
+
 def confirm_reservation_by_id(reservation_id: int) -> Reservation:
-    reservation = is_exist(reservation_id)
+    reservation = get_reservation_by_id(reservation_id)
 
     if reservation.is_confirmed():
         raise ValidationError("이미 확정된 예약입니다.")
@@ -36,6 +59,7 @@ def confirm_reservation_by_id(reservation_id: int) -> Reservation:
     reservation.save()
     return reservation
 
+
 def delete_reservation(reservation_id: int):
-    reservation = is_exist(reservation_id)
+    reservation = get_reservation_by_id(reservation_id)
     reservation.delete()

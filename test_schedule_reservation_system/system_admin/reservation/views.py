@@ -4,7 +4,7 @@ from rest_framework.response import Response
 from rest_framework import status
 from core.models.reservation import Reservation, Status
 from ..permissions import IsStaffUser
-from .services import get_all_reservations, confirm_reservation_by_id, delete_reservation
+from .services import get_all_reservations, update_reservation, confirm_reservation_by_id, delete_reservation
 
 
 class ReservationAdminViewSet(ViewSet):
@@ -14,6 +14,11 @@ class ReservationAdminViewSet(ViewSet):
     def list_reservations(self, request):
         serializer = get_all_reservations()
         return Response(serializer.data, status=status.HTTP_200_OK)
+
+    @action(detail=True, methods=['patch'], url_path='update')
+    def update_reservation(self, request, pk=None):
+        update_reservation(pk, request.data)
+        return Response({'message': '예약이 수정되었습니다.'}, status=status.HTTP_200_OK)
 
     @action(detail=True, methods=['patch'], url_path='confirm')
     def confirm_reservation(self, request, pk=None):
