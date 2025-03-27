@@ -129,23 +129,22 @@ class TestAdminUpdateReservation(APITestCase):
 
     def test_exceed_headcount_limit(self):
         # 이미 존재하는 확정 예약으로 49000 채움
+        three_days_later = date.today() + timedelta(days=3)
         Reservation.objects.create(
             user=self.admin,
-            test_reservation_date=self.reservation.test_reservation_date,
+            test_reservation_date=three_days_later,
             test_start_time=time(10, 0),
             test_end_time=time(12, 0),
             headcount=49000,
             status=Status.CONFIRM
         )
 
-        three_days_later = date.today() + timedelta(days=3)
         response = self.client.patch(self.url, {
             "test_reservation_date": three_days_later,
             "test_start_time": "11:00",
             "test_end_time": "12:00",
             "headcount": 2000
         }, format='json')
-
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertIn('50,000명을 초과', str(response.data))
 
