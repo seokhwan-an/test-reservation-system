@@ -23,14 +23,17 @@ def update_reservation(reservation_id: int, data: ReturnDict):
 
     serializer = ReservationUpdateSerializer(data=data)
     serializer.is_valid(raise_exception=True)
+    new_test_reservation_date = serializer.validated_data['test_reservation_date']
+    new_test_start_time = serializer.validated_data['test_start_time']
+    new_test_end_time = serializer.validated_data['test_end_time']
     new_headcount = serializer.validated_data['headcount']
 
-    reservations_in_time = Reservations(Reservation.objects.filter(
-        test_reservation_date=reservation.test_reservation_date,
-        test_start_time__lt=reservation.test_end_time,
-        test_end_time__gt=reservation.test_start_time,
+    reservations_in_time = Reservations(list(Reservation.objects.filter(
+        test_reservation_date=new_test_reservation_date,
+        test_start_time__lt=new_test_end_time,
+        test_end_time__gt=new_test_start_time,
         status=Status.CONFIRM
-    ).exclude(pk=reservation.pk))
+    ).exclude(pk=reservation.pk)))
 
     reservations_in_time.validate_exceed_limit(new_headcount)
 

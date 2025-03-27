@@ -4,11 +4,16 @@ from rest_framework.response import Response
 from rest_framework import status
 from core.models.reservation import Reservation, Status
 from ..permissions import IsCorporateUser
-from .services import get_my_reservations, delete_reservation, update_reservation
+from .services import create_reservation, get_my_reservations, delete_reservation, update_reservation
 
 
 class ReservationAdminViewSet(ViewSet):
     permission_classes = [IsCorporateUser]
+
+    @action(detail=False, methods=['post'], url_path='create')
+    def create_reservation(self, request):
+        create_reservation(request.data, request.user)
+        return Response({'message': '예약이 신청되었습니다.'}, status=status.HTTP_201_CREATED)
 
     @action(detail=False, methods=['get'], url_path='my')
     def my_reservations(self, request):

@@ -4,7 +4,35 @@ from django.contrib.auth.models import User
 from rest_framework.exceptions import NotFound, PermissionDenied, ValidationError
 from rest_framework.utils.serializer_helpers import ReturnDict
 
-from .serializers import ReservationSerializer, ReservationUpdateSerializer
+from .serializers import ReservationSerializer, ReservationUpdateSerializer, ReservationCreateSerializer
+
+
+def create_reservation(data: ReturnDict, user: User):
+    serializer = ReservationCreateSerializer(data=data)
+    serializer.is_valid(raise_exception=True)
+
+    test_date = serializer.validated_data['test_reservation_date']
+    test_start = serializer.validated_data['test_start_time']
+    test_end = serializer.validated_data['test_end_time']
+    headcount = serializer.validated_data['headcount']
+
+    reservations_in_time = Reservations(Reservation.objects.filter(
+        test_reservation_date=test_date,
+        test_start_time__lt=test_end,
+        test_end_time__gt=test_start,
+        status=Status.CONFIRM
+    ))
+
+    reservations_in_time.validate_exceed_limit(headcount)
+
+    Reservation.objects.create(
+        user=user,
+        test_reservation_date=test_date,
+        test_start_time=test_start,
+        test_end_time=test_end,
+        headcount=headcount,
+        status=Status.AWAIT
+    )
 
 
 def get_my_reservations(user: User) -> ReservationSerializer:
@@ -34,14 +62,17 @@ def update_reservation(reservation_id: int, data: ReturnDict, user: User):
     serializer = ReservationUpdateSerializer(data=data, partial=True)
     serializer.is_valid(raise_exception=True)
 
-    new_headcount = serializer.validated_data.get('headcount', reservation.headcount)
+    new_test_reservation_date = serializer.validated_data['test_reservation_date']
+    new_test_start_time = serializer.validated_data['test_start_time']
+    new_test_end_time = serializer.validated_data['test_end_time']
+    new_headcount = serializer.validated_data['headcount']
 
-    reservations_in_time = Reservations(Reservation.objects.filter(
-        test_reservation_date=reservation.test_reservation_date,
-        test_start_time__lt=reservation.test_end_time,
-        test_end_time__gt=reservation.test_start_time,
+    reservations_in_time = Reservations(list(Reservation.objects.filter(
+        test_reservation_date=new_test_reservation_date,
+        test_start_time__lt=new_test_end_time,
+        test_end_time__gt=new_test_start_time,
         status=Status.CONFIRM
-    ).exclude(pk=reservation.pk))
+    ).exclude(pk=reservation.pk)))
 
     reservations_in_time.validate_exceed_limit(new_headcount)
 
