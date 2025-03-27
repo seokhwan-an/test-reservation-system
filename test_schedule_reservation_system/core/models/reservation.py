@@ -1,4 +1,5 @@
 from django.conf import settings
+from django.contrib.auth.models import User
 from django.db import models
 
 
@@ -28,3 +29,6 @@ class Reservation(models.Model):
 
     def is_confirmed(self) -> bool:
         return self.status == Status.CONFIRM
+
+    def is_writer(self, user: User):
+        return self.user == user
