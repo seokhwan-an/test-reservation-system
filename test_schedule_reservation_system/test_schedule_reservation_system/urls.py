@@ -27,5 +27,6 @@ urlpatterns = [
     path('api/admin-reservation/', include('system_admin.reservation.urls')),
     path('api/reservations/', include('system_user.reservation.urls')),
 
+    path('api/schema/', SpectacularAPIView.as_view(), name='schema'),
     path('api/docs/', SpectacularSwaggerView.as_view(url_name='schema'), name='swagger-ui'),
 ]
