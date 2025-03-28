@@ -1,8 +1,9 @@
-from drf_spectacular.utils import OpenApiParameter, OpenApiTypes
+from drf_spectacular.utils import OpenApiParameter, OpenApiTypes, OpenApiExample
 
 from .serializers import (
     ReservationSerializer,
-    ReservationUpdateSerializer
+    ReservationUpdateSerializer,
+    ReservationDetailSerializer
 )
 
 list_reservations_docs = {
@@ -33,8 +34,27 @@ update_reservation_docs = {
         )
     ],
     "request": ReservationUpdateSerializer,
-    "responses": {200: OpenApiTypes.OBJECT}
-
+    "examples": [
+        OpenApiExample(
+            name="예약 수정 성공 응답",
+            value={
+                "message": "예약이 수정되었습니다.",
+                "reservation": {
+                    "id": 1,
+                    "user": "user1",
+                    "test_reservation_date": "2025-04-20",
+                    "test_start_time": "10:00",
+                    "test_end_time": "11:00",
+                    "headcount": 100,
+                    "status": "AWAIT",
+                    "created_at": "2025-04-10T00:00:00Z",
+                    "updated_at": "2025-04-11T00:00:00Z"
+                }
+            },
+            response_only=True
+        )
+    ],
+    "responses": {200: ReservationDetailSerializer}
 }
 
 confirm_reservation_docs = {
@@ -49,7 +69,27 @@ confirm_reservation_docs = {
             description="JWT 액세스 토큰 (어드민 권한 필요). 예: Bearer <your_token>"
         )
     ],
-    "responses": {200: OpenApiTypes.OBJECT}
+    "examples": [
+        OpenApiExample(
+            name="예약 확정 성공 응답",
+            value={
+                "message": "예약이 확정되었습니다.",
+                "reservation": {
+                    "id": 1,
+                    "user": "user1",
+                    "test_reservation_date": "2025-04-20",
+                    "test_start_time": "10:00",
+                    "test_end_time": "11:00",
+                    "headcount": 100,
+                    "status": "CONFIRM",
+                    "created_at": "2025-04-10T00:00:00Z",
+                    "updated_at": "2025-04-11T00:00:00Z"
+                }
+            },
+            response_only=True
+        )
+    ],
+    "responses": {200: ReservationDetailSerializer}
 }
 
 delete_reservation_docs = {

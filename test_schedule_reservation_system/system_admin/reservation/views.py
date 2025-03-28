@@ -1,4 +1,4 @@
-from drf_spectacular.utils import extend_schema, OpenApiTypes, OpenApiParameter
+from drf_spectacular.utils import extend_schema
 from rest_framework.viewsets import ViewSet
 from rest_framework.decorators import action
 from rest_framework.response import Response
@@ -11,14 +11,13 @@ from .services import (
     confirm_reservation_by_id,
     delete_reservation
 )
-
 from .docs import (
     list_reservations_docs,
     update_reservation_docs,
     confirm_reservation_docs,
     delete_reservation_docs
 )
-
+from .serializers import ReservationDetailSerializer
 
 class ReservationAdminViewSet(ViewSet):
     permission_classes = [IsStaffUser]
@@ -32,14 +31,22 @@ class ReservationAdminViewSet(ViewSet):
     @extend_schema(**update_reservation_docs)
     @action(detail=True, methods=['patch'], url_path='update')
     def update_reservation(self, request, pk=None):
-        update_reservation(pk, request.data)
-        return Response({'message': '예약이 수정되었습니다.'}, status=status.HTTP_200_OK)
+        updated_reservation = update_reservation(pk, request.data)
+        serializer = ReservationDetailSerializer(updated_reservation)
+        return Response({
+            'message': '예약이 수정되었습니다.',
+            'reservation': serializer.data
+        }, status=status.HTTP_200_OK)
 
     @extend_schema(**confirm_reservation_docs)
     @action(detail=True, methods=['patch'], url_path='confirm')
     def confirm_reservation(self, request, pk=None):
-        confirm_reservation_by_id(pk)
-        return Response({'message': '예약이 확정되었습니다.'}, status=status.HTTP_200_OK)
+        confirmed_reservation = confirm_reservation_by_id(pk)
+        serializer = ReservationDetailSerializer(confirmed_reservation)
+        return Response({
+            'message': '예약이 확정되었습니다.',
+            'reservation': serializer.data
+        }, status=status.HTTP_200_OK)
 
     @extend_schema(**delete_reservation_docs)
     @action(detail=True, methods=['delete'], url_path='delete')

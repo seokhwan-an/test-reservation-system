@@ -8,7 +8,7 @@ from .serializers import ReservationSerializer, ReservationUpdateSerializer, Res
 from ..utils import date_utils
 
 
-def create_reservation(data: ReturnDict, user: User):
+def create_reservation(data: ReturnDict, user: User) -> Reservation:
     serializer = ReservationCreateSerializer(data=data)
     serializer.is_valid(raise_exception=True)
 
@@ -26,7 +26,7 @@ def create_reservation(data: ReturnDict, user: User):
 
     reservations_in_time.validate_exceed_limit(headcount)
 
-    Reservation.objects.create(
+    reservation = Reservation.objects.create(
         user=user,
         test_reservation_date=test_date,
         test_start_time=test_start,
@@ -34,6 +34,7 @@ def create_reservation(data: ReturnDict, user: User):
         headcount=headcount,
         status=Status.AWAIT
     )
+    return reservation
 
 
 def get_my_reservations(user: User) -> ReservationSerializer:
@@ -56,7 +57,7 @@ def is_manipulate(reservation: Reservation, user: User, message: str):
         raise ValidationError(f"확정된 예약은 {message}할 수 없습니다.")
 
 
-def update_reservation(reservation_id: int, data: ReturnDict, user: User):
+def update_reservation(reservation_id: int, data: ReturnDict, user: User) -> Reservation:
     reservation = get_reservation_by_id(reservation_id)
     is_manipulate(reservation, user, '수정')
 
@@ -81,6 +82,7 @@ def update_reservation(reservation_id: int, data: ReturnDict, user: User):
         setattr(reservation, attr, value)
 
     reservation.save()
+    return reservation
 
 
 def delete_reservation(reservation_id: int, user: User):

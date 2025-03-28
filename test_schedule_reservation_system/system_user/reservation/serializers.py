@@ -101,3 +101,20 @@ class AvailableSlotSerializer(serializers.Serializer):
 class ReservationAvailabilityResponseSerializer(serializers.Serializer):
     date = serializers.DateField()
     available_slots = AvailableSlotSerializer(many=True)
+
+class ReservationDetailSerializer(serializers.ModelSerializer):
+    user = serializers.StringRelatedField()
+
+    class Meta:
+        model = Reservation
+        fields = [
+            'id',
+            'user',
+            'test_reservation_date',
+            'test_start_time',
+            'test_end_time',
+            'headcount',
+            'status',
+            'created_at',
+            'updated_at',
+        ]
