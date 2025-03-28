@@ -1,5 +1,3 @@
-from datetime import time
-
 from core.models.reservation import Reservation, Status
 from core.models.reservations import Reservations
 from django.contrib.auth.models import User

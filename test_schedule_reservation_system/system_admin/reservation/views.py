@@ -11,10 +11,6 @@ from .services import (
     confirm_reservation_by_id,
     delete_reservation
 )
-from .serializers import (
-    ReservationSerializer,
-    ReservationUpdateSerializer
-)
 
 from .docs import (
     list_reservations_docs,
