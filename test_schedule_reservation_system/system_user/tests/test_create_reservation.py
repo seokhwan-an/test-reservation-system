@@ -40,7 +40,7 @@ class TestUserReservationCreate(APITestCase):
         response = self.client.post(self.url, data, format='json')
 
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-        self.assertIn("3일 이후", str(response.data))
+        self.assertIn("예약은 최소 3일 이후로만 가능합니다.", str(response.data))
 
     def test_create_reservation_exceeds_headcount_limit(self):
         test_date = date.today() + timedelta(days=5)
@@ -63,4 +63,4 @@ class TestUserReservationCreate(APITestCase):
         response = self.client.post(self.url, data, format='json')
 
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-        self.assertIn("50,000명을 초과", str(response.data))
+        self.assertIn("해당 시간대의 예약 인원이 50,000명을 초과합니다.", str(response.data))

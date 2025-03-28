@@ -58,7 +58,7 @@ class TestAdminUpdateReservation(APITestCase):
         }, format='json')
 
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-        self.assertIn("이전일 수 없습니다", str(response.data))
+        self.assertIn("예약 시작시간은 현재보다 이전일 수 없습니다.", str(response.data))
 
     def test_end_time_before_start_time(self):
         three_days_later = date.today() + timedelta(days=3)
@@ -70,7 +70,7 @@ class TestAdminUpdateReservation(APITestCase):
         }, format='json')
 
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-        self.assertIn("종료 시간은 시작 시간보다 이후", str(response.data))
+        self.assertIn("종료 시간은 시작 시간보다 이후여야 합니다.", str(response.data))
 
     def test_exceed_headcount_limit(self):
         # 이미 존재하는 확정 예약으로 49000 채움
@@ -91,4 +91,4 @@ class TestAdminUpdateReservation(APITestCase):
             "headcount": 2000
         }, format='json')
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-        self.assertIn('50,000명을 초과', str(response.data))
+        self.assertIn("해당 시간대의 예약 인원이 50,000명을 초과합니다.", str(response.data))

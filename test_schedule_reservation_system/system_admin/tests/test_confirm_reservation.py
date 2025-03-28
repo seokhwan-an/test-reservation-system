@@ -83,7 +83,7 @@ class TestConfirmReservation(APITestCase):
         response = self.client.patch(self.url)
 
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-        self.assertIn('50,000명을 초과', str(response.data[0]))
+        self.assertIn("해당 시간대의 예약 인원이 50,000명을 초과합니다.", str(response.data[0]))
 
     def test_normal_user_cannot_confirm_reservation(self):
         tokens = generate_tokens_for_user(self.normal_user)

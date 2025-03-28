@@ -54,4 +54,4 @@ class TestReservationAvailabilityAPI(APITestCase):
         past_date = (now().date() - timedelta(days=1)).strftime('%Y-%m-%d')
         res = self.client.get(self.base_url + f'?date={past_date}')
         self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
-        self.assertIn("이전 날짜", str(res.data))
+        self.assertIn("현재 날짜보다 이전 날짜는 조회할 수 없습니다.", str(res.data))
