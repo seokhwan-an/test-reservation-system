@@ -4,7 +4,10 @@ from rest_framework.response import Response
 from rest_framework import status
 from core.models.reservation import Reservation, Status
 from ..permissions import IsCorporateUser
-from .services import create_reservation, get_my_reservations, delete_reservation, update_reservation
+from .services import create_reservation, get_my_reservations, delete_reservation, update_reservation, \
+    get_available_slots
+
+from .serializers import ReservationAvailabilityResponseSerializer
 
 
 class ReservationAdminViewSet(ViewSet):
@@ -29,3 +32,9 @@ class ReservationAdminViewSet(ViewSet):
     def delete_reservation(self, request, pk=None):
         delete_reservation(pk, request.user)
         return Response({'message': '예약이 삭제되었습니다.'}, status=status.HTTP_204_NO_CONTENT)
+
+    @action(detail=False, methods=['get'], url_path = 'available')
+    def get_available_slots(self, request):
+        available_slots = get_available_slots(request.query_params.get('date'))
+        serializer = ReservationAvailabilityResponseSerializer(available_slots)
+        return Response(serializer.data)

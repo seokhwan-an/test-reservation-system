@@ -1,3 +1,5 @@
+from datetime import time
+
 from core.models.reservation import Reservation, Status
 from core.models.reservations import Reservations
 from django.contrib.auth.models import User
@@ -5,6 +7,7 @@ from rest_framework.exceptions import NotFound, PermissionDenied, ValidationErro
 from rest_framework.utils.serializer_helpers import ReturnDict
 
 from .serializers import ReservationSerializer, ReservationUpdateSerializer, ReservationCreateSerializer
+from ..utils import date_utils
 
 
 def create_reservation(data: ReturnDict, user: User):
@@ -87,3 +90,18 @@ def delete_reservation(reservation_id: int, user: User):
     is_manipulate(reservation, user, '삭제')
 
     reservation.delete()
+
+
+def get_available_slots(date: str) -> dict:
+    date = date_utils.parse_and_validate_date(date)
+
+    reservations_on_date = Reservations(list(Reservation.objects.filter(
+        test_reservation_date=date,
+        status=Status.CONFIRM
+    )))
+
+    available_slots = reservations_on_date.get_hourly_available_headcount()
+    return {
+        "date": date,
+        "available_slots": available_slots
+    }
