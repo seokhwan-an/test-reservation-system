@@ -94,7 +94,7 @@ class AvailableSlotSerializer(serializers.Serializer):
     def get_end_time(self, obj: tuple[time, time, int]) -> str:
         return obj[1].strftime('%H:%M')
 
-    def get_available_headcount(self, obj):
+    def get_available_headcount(self, obj) -> int:
         return obj[2]
 
 
