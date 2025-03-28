@@ -1,4 +1,4 @@
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, time
 
 from django.utils.timezone import make_aware, now
 from rest_framework import serializers
@@ -81,3 +81,23 @@ class ReservationUpdateSerializer(serializers.ModelSerializer):
                 raise ValidationError("종료 시간은 시작 시간보다 이후여야 합니다.")
 
         return data
+
+
+class AvailableSlotSerializer(serializers.Serializer):
+    start_time = serializers.SerializerMethodField()
+    end_time = serializers.SerializerMethodField()
+    available_headcount = serializers.SerializerMethodField()
+
+    def get_start_time(self, obj: tuple[time, time, int]) -> str:
+        return obj[0].strftime('%H:%M')
+
+    def get_end_time(self, obj: tuple[time, time, int]) -> str:
+        return obj[1].strftime('%H:%M')
+
+    def get_available_headcount(self, obj):
+        return obj[2]
+
+
+class ReservationAvailabilityResponseSerializer(serializers.Serializer):
+    date = serializers.DateField()
+    available_slots = AvailableSlotSerializer(many=True)
