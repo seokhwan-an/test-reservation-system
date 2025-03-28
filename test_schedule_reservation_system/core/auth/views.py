@@ -4,10 +4,13 @@ from rest_framework.response import Response
 from rest_framework import status
 from .serializers import SignupSerializer, LoginSerializer
 from .token_utils import generate_tokens_for_user
+from drf_spectacular.utils import extend_schema
+from .docs import signup_docs, login_docs
 
 
 class AuthViewSet(ViewSet):
 
+    @extend_schema(**signup_docs)
     @action(detail=False, methods=['post'], url_path='signup')
     def signup(self, request):
         serializer = SignupSerializer(data=request.data)
@@ -16,6 +19,7 @@ class AuthViewSet(ViewSet):
             return Response({'message': '회원가입 성공'}, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+    @extend_schema(**login_docs)
     @action(detail=False, methods=['post'], url_path='login')
     def login(self, request):
         serializer = LoginSerializer(data=request.data)
