@@ -22,6 +22,7 @@ from .services import (
 )
 from .serializers import (
     ReservationAvailabilityResponseSerializer,
+    ReservationDetailSerializer
 )
 
 
@@ -31,8 +32,13 @@ class ReservationAdminViewSet(ViewSet):
     @extend_schema(**create_reservation_docs)
     @action(detail=False, methods=['post'], url_path='create')
     def create_reservation(self, request):
-        create_reservation(request.data, request.user)
-        return Response({'message': '예약이 신청되었습니다.'}, status=status.HTTP_201_CREATED)
+        new_reservation = create_reservation(request.data, request.user)
+        serializer = ReservationDetailSerializer(new_reservation)
+
+        return Response({
+            'message': '예약이 신청되었습니다.',
+            'reservation': serializer.data
+        }, status=status.HTTP_201_CREATED)
 
     @extend_schema(**my_reservations_docs)
     @action(detail=False, methods=['get'], url_path='my')
@@ -43,14 +49,19 @@ class ReservationAdminViewSet(ViewSet):
     @extend_schema(**update_reservation_docs)
     @action(detail=True, methods=['patch'], url_path='update')
     def update_reservation(self, request, pk=None):
-        update_reservation(pk, request.data, request.user)
-        return Response({'message': '예약이 수정되었습니다.'}, status=status.HTTP_200_OK)
+        updated_reservation = update_reservation(pk, request.data, request.user)
+        serializer = ReservationDetailSerializer(updated_reservation)
+
+        return Response({
+            'message': '예약이 수정되었습니다.',
+            'reservation': serializer.data
+        }, status=status.HTTP_200_OK)
 
     @extend_schema(**delete_reservation_docs)
     @action(detail=True, methods=['delete'], url_path='delete')
     def delete_reservation(self, request, pk=None):
         delete_reservation(pk, request.user)
-        return Response({'message': '예약이 삭제되었습니다.'}, status=status.HTTP_204_NO_CONTENT)
+        return Response(status=status.HTTP_204_NO_CONTENT)
 
     @extend_schema(**available_slots_docs)
     @action(detail=False, methods=['get'], url_path='available')

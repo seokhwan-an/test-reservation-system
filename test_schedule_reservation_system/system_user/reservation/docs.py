@@ -1,19 +1,17 @@
-from drf_spectacular.utils import OpenApiParameter, OpenApiTypes
+from drf_spectacular.utils import OpenApiParameter, OpenApiTypes, OpenApiExample
 
 from .serializers import (
     ReservationCreateSerializer,
     ReservationSerializer,
     ReservationUpdateSerializer,
-    ReservationAvailabilityResponseSerializer
+    ReservationAvailabilityResponseSerializer,
+    ReservationDetailSerializer
 )
 
 create_reservation_docs = {
     "summary": "예약 생성",
     "description": "예약을 새로 생성합니다. 최소 3일 이후의 날짜여야 하며, 시간대별 예약 가능 인원을 초과할 수 없습니다.",
     "request": ReservationCreateSerializer,
-    "responses": {
-        201: OpenApiTypes.OBJECT
-    },
     "parameters": [
         OpenApiParameter(
             name="Authorization",
@@ -22,7 +20,30 @@ create_reservation_docs = {
             required=True,
             description="JWT 액세스 토큰 (기업 사용자 권한 필요). 예: Bearer <your_token>"
         )
-    ]
+    ],
+    "examples": [
+        OpenApiExample(
+            name="예약 생성 성공 응답 예시",
+            value={
+                "message": "예약이 신청되었습니다.",
+                "reservation": {
+                    "id": 17,
+                    "user": "company_user1",
+                    "test_reservation_date": "2025-04-25",
+                    "test_start_time": "10:00:00",
+                    "test_end_time": "11:00:00",
+                    "headcount": 200,
+                    "status": "AWAIT",
+                    "created_at": "2025-04-20T10:00:00Z",
+                    "updated_at": "2025-04-20T10:00:00Z"
+                }
+            },
+            response_only=True
+        )
+    ],
+    "responses": {
+        201: ReservationDetailSerializer
+    }
 }
 
 my_reservations_docs = {
@@ -55,8 +76,28 @@ update_reservation_docs = {
             description="JWT 액세스 토큰 (기업 사용자 권한 필요). 예: Bearer <your_token>"
         )
     ],
+    "examples": [
+        OpenApiExample(
+            name="예약 수정 성공 응답 예시",
+            value={
+                "message": "예약이 신청되었습니다.",
+                "reservation": {
+                    "id": 17,
+                    "user": "company_user1",
+                    "test_reservation_date": "2025-04-25",
+                    "test_start_time": "10:00:00",
+                    "test_end_time": "11:00:00",
+                    "headcount": 200,
+                    "status": "AWAIT",
+                    "created_at": "2025-04-20T10:00:00Z",
+                    "updated_at": "2025-04-20T10:00:00Z"
+                }
+            },
+            response_only=True
+        )
+    ],
     "responses": {
-        200: OpenApiTypes.NONE
+        200: ReservationDetailSerializer
     }
 }
 

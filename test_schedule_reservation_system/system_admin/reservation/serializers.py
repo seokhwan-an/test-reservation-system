@@ -57,3 +57,20 @@ class ReservationUpdateSerializer(serializers.ModelSerializer):
                 raise ValidationError("종료 시간은 시작 시간보다 이후여야 합니다.")
 
         return data
+
+class ReservationDetailSerializer(serializers.ModelSerializer):
+    user = serializers.StringRelatedField()
+
+    class Meta:
+        model = Reservation
+        fields = [
+            'id',
+            'user',
+            'test_reservation_date',
+            'test_start_time',
+            'test_end_time',
+            'headcount',
+            'status',
+            'created_at',
+            'updated_at',
+        ]

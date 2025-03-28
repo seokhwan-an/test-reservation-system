@@ -18,7 +18,7 @@ def get_all_reservations() -> ReservationSerializer:
     return ReservationSerializer(reservations, many=True)
 
 
-def update_reservation(reservation_id: int, data: ReturnDict):
+def update_reservation(reservation_id: int, data: ReturnDict) -> Reservation:
     reservation = get_reservation_by_id(reservation_id)
 
     serializer = ReservationUpdateSerializer(data=data)
@@ -41,6 +41,7 @@ def update_reservation(reservation_id: int, data: ReturnDict):
         setattr(reservation, attr, value)
 
     reservation.save()
+    return reservation
 
 
 def confirm_reservation_by_id(reservation_id: int) -> Reservation:
